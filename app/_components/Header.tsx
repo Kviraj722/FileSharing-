@@ -3,7 +3,6 @@ import React from "react";
 
 function Header() {
   return (
-    //  <div>Header</div>
     <header>
       <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <div className="sm:flex sm:items-center sm:justify-between flex justify-between">
@@ -19,10 +18,9 @@ function Header() {
           <div>
             <Link
               className="inline-flex items-center gap-2 rounded border border-indigo-600 bg-indigo-600 px-8 py-3 text-white hover:bg-transparent hover:text-indigo-600 focus:outline-none focus:ring active:text-indigo-500"
-              href="/download"
+              href="/upload"
             >
               <span className="text-sm font-medium"> Get started </span>
-
               {/* <svg
               className="h-5 w-5 rtl:rotate-180"
               xmlns="http://www.w3.org/2000/svg"

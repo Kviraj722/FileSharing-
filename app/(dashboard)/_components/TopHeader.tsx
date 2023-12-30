@@ -14,7 +14,7 @@ function TopHeader() {
         height={65}
         className="md:hidden"
       />
-      <UserButton />
+      <UserButton afterSignOutUrl="/" />
     </div>
   );
 }

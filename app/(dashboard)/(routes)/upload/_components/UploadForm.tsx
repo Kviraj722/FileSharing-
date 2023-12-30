@@ -1,6 +1,39 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import AlertMessage from "./AlertMessage";
+// import FilePreview from "./FilePreview";
 
 function UploadForm() {
+  interface File {
+    name?: string;
+    lastModified?: number;
+    size: number;
+    type?: string;
+    webkitRelativePath?: string;
+    target?: string;
+  }
+
+  const [file, setFile] = useState<File | undefined>();
+  const [errorMsg, setErrorMsg] = useState<string | undefined>();
+  const onFileSelect = (file: any) => {
+    console.log("File =>", file);
+    if (file && file.size > 2000000) {
+      console.log("Size is greater then 2 mb");
+      setErrorMsg("Maximum file upload size is 2MB");
+      return;
+    }
+    setErrorMsg(undefined);
+    setFile(file);
+  };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setErrorMsg(undefined);
+    }, 5000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [errorMsg]);
   return (
     <div className="mx-4 md:mx-8 lg:mx-16 xl:mx-24">
       <div className="flex flex-col items-center justify-center w-full mt-8 mb-12 md:mb-16 lg:mb-20 xl:mb-24">
@@ -29,14 +62,28 @@ function UploadForm() {
               drop
             </p>
             <p className="text-xs text-indigo-500 dark:text-indigo-400">
-              SVG, PNG, JPG, or GIF (MAX. 800x400px)
+              SVG, PNG, JPG, or GIF (MAX.2MB)
             </p>
           </div>
-          <input id="dropzone-file" type="file" className="hidden" />
+          <input
+            // onChange={(event: File) => onFileSelect(event?.target?.files[0])}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              onFileSelect(event.target.files?.[0])
+            }
+            id="dropzone-file"
+            type="file"
+            className="hidden"
+          />
         </label>
       </div>
+      {errorMsg ? <AlertMessage msg={errorMsg} /> : null}
+
       <div className="flex justify-center md:mt-8 lg:mt-12 xl:mt-16">
-        <button className="p-2 text-white w-full md:w-[50%] lg:w-[40%] xl:w-[30%] rounded-full  bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring focus:border-indigo-700">
+        {/* {file && <FilePreview file={file} />} */}
+        <button
+          disabled={!file}
+          className="disabled:bg-gray-700 p-2 text-white w-full md:w-[50%] lg:w-[40%] xl:w-[30%] rounded-full  bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring focus:border-indigo-700"
+        >
           Upload
         </button>
       </div>
