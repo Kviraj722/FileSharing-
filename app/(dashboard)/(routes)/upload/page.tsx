@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import UploadForm from "./_components/UploadForm";
-import { app } from "@/firebaseConfig";
+// import { app } from "@/firebaseConfig";
 import {
   getDownloadURL,
   getStorage,
@@ -11,7 +11,7 @@ import {
 
 function Upload() {
   const [progress, setProgress] = useState<any>();
-  const storage = getStorage(app);
+  // const storage = getStorage(app);
   const uploadFile = (file: any) => {
     // ! Upload in next release. 
     // try {
