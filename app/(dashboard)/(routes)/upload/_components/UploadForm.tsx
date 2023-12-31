@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import AlertMessage from "./AlertMessage";
-// import FilePreview from "./FilePreview";
+import FilePreview from "./FilePreview";
+import ProgressBar from "./ProgressBar";
 
-function UploadForm() {
+function UploadForm({ uploadBtnHandler, progress }: any) {
   interface File {
     name?: string;
     lastModified?: number;
@@ -14,6 +15,9 @@ function UploadForm() {
 
   const [file, setFile] = useState<File | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
+  const [uploadComplete, setUploadComplete] = useState<boolean>(false);
+  const [uploading, setUploading] = useState<boolean>(false);
+
   const onFileSelect = (file: any) => {
     console.log("File =>", file);
     if (file && file.size > 2000000) {
@@ -28,12 +32,27 @@ function UploadForm() {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setErrorMsg(undefined);
-    }, 5000);
+    }, 3000);
 
     return () => {
       clearTimeout(timeoutId);
     };
   }, [errorMsg]);
+
+  const handleUpload = () => {
+    setUploading(true);
+    uploadBtnHandler(file).then(() => {
+      setUploading(false);
+      setFile(undefined);
+
+      setTimeout(() => {
+        // setFile(undefined);
+        setUploadComplete(false);
+      }, 3000);
+    });
+    // uploadBtnHandler(file);
+    // setUploadComplete(true);
+  };
   return (
     <div className="mx-4 md:mx-8 lg:mx-16 xl:mx-24">
       <div className="flex flex-col items-center justify-center w-full mt-8 mb-12 md:mb-16 lg:mb-20 xl:mb-24">
@@ -79,14 +98,29 @@ function UploadForm() {
       {errorMsg ? <AlertMessage msg={errorMsg} /> : null}
 
       <div className="flex justify-center md:mt-8 lg:mt-12 xl:mt-16">
-        {/* {file && <FilePreview file={file} />} */}
-        <button
-          disabled={!file}
-          className="disabled:bg-gray-700 p-2 text-white w-full md:w-[50%] lg:w-[40%] xl:w-[30%] rounded-full  bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring focus:border-indigo-700"
-        >
-          Upload
-        </button>
+        {file && !uploadComplete && !uploading && (
+          <FilePreview file={file} removeFile={() => setFile(undefined)} />
+        )}
+        {!uploadComplete && !uploading && (
+          <button
+            disabled={!file}
+            className="disabled:bg-gray-700 p-2 text-white w-full md:w-[50%] lg:w-[40%] xl:w-[30%] rounded-full  bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring focus:border-indigo-700"
+            onClick={handleUpload}
+          >
+            Upload
+          </button>
+        )}
       </div>
+      {/* {progress > 0 && <ProgressBar progress={progress} />} */}
+      {uploading && <ProgressBar progress={progress} />}
+      {uploadComplete && (
+        <div className="flex justify-center mt-3">
+          <div className="bg-indigo-600 text-black h-6 rounded-full w-full text-center">
+            Upload Completed
+          </div>
+        </div>
+      )}
+      
     </div>
   );
 }
