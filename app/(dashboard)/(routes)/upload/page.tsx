@@ -50,7 +50,7 @@ function Upload() {
           Start uploading file and Share it.
         </h1>
       </div>
-      <div className="w-full h-full items-center mt-20">
+      <div className="w-full h-full items-center mt-15">
         <UploadForm
           uploadBtnHandler={(file: any) => uploadFile(file)}
           progress={progress}
