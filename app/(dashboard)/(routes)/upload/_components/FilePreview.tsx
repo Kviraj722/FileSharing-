@@ -3,11 +3,19 @@ import Image from "next/image";
 import React from "react";
 
 function FilePreview({ file, removeFile }: any) {
+  const fileUrl = URL.createObjectURL(file);
+
   return (
     <div className="flex items-center gap-2 justify-between mt-5 boarder rounded-md p-2 boarder-indigo-400">
       <div className="flex items-center p-2">
         {/* {console.log(file)} */}
-        <Image src={file} width={50} height={50} alt="file" />
+        <Image src={fileUrl} width={50} height={50} alt="file" style={{
+          borderRadius: "50%",
+          overflow: "hidden",
+          maxHeight: "50",
+          minHeight: "50",
+          minWidth: "50"
+        }} />
         <div>
           <h2 className="text-left">{file.name}</h2>
           <h2 className="text-[12px] text-gray-400">

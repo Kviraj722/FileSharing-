@@ -1,40 +1,44 @@
 "use client";
 import React, { useState } from "react";
 import UploadForm from "./_components/UploadForm";
-// import { app } from "@/firebaseConfig";
+import { app } from "@/firebaseConfig";
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
+import ToasterSuccess from "@/app/_components/ToasterSuccess";
+import ToasterComponent from "@/app/_components/ToasterComponent";
 
 function Upload() {
   const [progress, setProgress] = useState<any>();
-  // const storage = getStorage(app);
+  const storage = getStorage(app);
   const uploadFile = (file: any) => {
-    // ! Upload in next release. 
-    // try {
-    //   const metaData = {
-    //     contentType: file.type,
-    //   };
-    //   const imageRef = ref(storage, "files/" + file?.name);
-    //   const uploadTask = uploadBytesResumable(imageRef, file, file.type);
-    //   uploadTask.on("state_changed", (snapshort: any) => {
-    //     const progress =
-    //       (snapshort.bytesTransferred / snapshort.totalBytes) * 100;
-    //     console.log("Upload is =>", progress, "%done");
-    //     setProgress(progress);
-    //     console.log("File uploaded successfully");
-    //     getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-    //       console.log("URL =>", url);
-    //     });
-    //   });
-    // } catch (err) {
-    //   console.log("Error while uploading  =>>>>>>>>>>>>>>>>>>>>", err);
-    // } finally {
-    //   // setFile(undefined)
-    // }
+    try {
+      const metaData = {
+        contentType: file.type,
+      };
+      const imageRef = ref(storage, "files/" + file?.name);
+      const uploadTask = uploadBytesResumable(imageRef, file, file.type);
+      uploadTask.on("state_changed", (snapshort: any) => {
+        const progress =
+          (snapshort.bytesTransferred / snapshort.totalBytes) * 100;
+        console.log("Upload is =>", progress, "%done");
+        setProgress(progress);
+        console.log("File uploaded successfully");
+        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+          console.log("URL =>", url);
+        });
+      });
+
+      ToasterSuccess("File uploaded successfully", 5000);
+    } catch (err) {
+      console.log("Error while uploading  =>>>>>>>>>>>>>>>>>>>>", err);
+      ToasterComponent("Error while uploading the file", 5000);
+    } finally {
+      // setFile(undefined)
+    }
   };
   return (
     <div className="p-5 px-8 md:px-28 ">

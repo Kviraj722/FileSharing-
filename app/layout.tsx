@@ -3,6 +3,7 @@ import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Header from "./_components/Header";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ToastContainer } from "react-toastify";
 
 const inter = Outfit({ subsets: ["latin"] });
 
@@ -22,6 +23,8 @@ export default function RootLayout({
         <body className={inter.className}>
           {/* <Header /> */}
           {children}
+      <ToastContainer />
+
         </body>
       </html>
     </ClerkProvider>

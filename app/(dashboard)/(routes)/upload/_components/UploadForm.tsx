@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import AlertMessage from "./AlertMessage";
 import FilePreview from "./FilePreview";
 import ProgressBar from "./ProgressBar";
+import ToasterSuccess from "@/app/_components/ToasterSuccess";
+import ToasterComponent from "@/app/_components/ToasterComponent";
 
 function UploadForm({ uploadBtnHandler, progress }: any) {
   interface File {
@@ -25,6 +27,9 @@ function UploadForm({ uploadBtnHandler, progress }: any) {
       setErrorMsg("Maximum file upload size is 2MB");
       return;
     }
+    
+    let fileURL = URL.createObjectURL(file)
+    
     setErrorMsg(undefined);
     setFile(file);
   };
@@ -39,17 +44,22 @@ function UploadForm({ uploadBtnHandler, progress }: any) {
     };
   }, [errorMsg]);
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     setUploading(true);
-    uploadBtnHandler(file).then(() => {
-      setUploading(false);
-      setFile(undefined);
+    try {
+      await uploadBtnHandler(file);
+      setUploadComplete(true);
 
       setTimeout(() => {
-        // setFile(undefined);
+        setFile(undefined);
         setUploadComplete(false);
       }, 3000);
-    });
+    } catch (error) {
+      ToasterComponent("Something went wrong during file upload", 3000);
+    } finally {
+      setUploading(false);
+    }
+
     // uploadBtnHandler(file);
     // setUploadComplete(true);
   };
@@ -97,10 +107,14 @@ function UploadForm({ uploadBtnHandler, progress }: any) {
       </div>
       {errorMsg ? <AlertMessage msg={errorMsg} /> : null}
 
-      <div className="flex justify-center md:mt-8 lg:mt-12 xl:mt-16">
+      <div className="flex justify-center md:mt-2 lg:mt-12 xl:mt-16">
         {file && !uploadComplete && !uploading && (
           <FilePreview file={file} removeFile={() => setFile(undefined)} />
         )}
+        
+      </div>
+      
+        <div className="flex justify-center">
         {!uploadComplete && !uploading && (
           <button
             disabled={!file}
@@ -110,17 +124,16 @@ function UploadForm({ uploadBtnHandler, progress }: any) {
             Upload
           </button>
         )}
-      </div>
+        </div>
       {/* {progress > 0 && <ProgressBar progress={progress} />} */}
-      {uploading && <ProgressBar progress={progress} />}
-      {uploadComplete && (
+      {/* {uploading && <ProgressBar progress={progress} />} */}
+      {/* {uploadComplete && (
         <div className="flex justify-center mt-3">
           <div className="bg-indigo-600 text-black h-6 rounded-full w-full text-center">
             Upload Completed
           </div>
         </div>
-      )}
-      
+      )} */}
     </div>
   );
 }
