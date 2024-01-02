@@ -19,6 +19,7 @@ import {
 } from "firebase/firestore";
 import { useUser } from "@clerk/nextjs";
 import { ClipLoader } from "react-spinners";
+import { useRouter } from "next/navigation";
 
 function Upload() {
   function generateUniqueRandomString(length: number): string {
@@ -38,7 +39,7 @@ function Upload() {
   const [progress, setProgress] = useState<any>();
   const storage = getStorage(app);
   const [loading, setLoading] = useState(false);
-
+  const router = useRouter();
   const id = generateUniqueRandomString(6);
   const uploadFile = async (file: any) => {
     try {
@@ -71,6 +72,7 @@ function Upload() {
       };
       const dataAdded = await setDoc(newDocRef, dataToUpload);
       ToasterSuccess("File uploaded successfully", 5000);
+      router.push("/file-preview/" + id);
     } catch (err) {
       console.log("Error while uploading  =>>>>>>>>>>>>>>>>>>>>", err);
       ToasterComponent("Error while uploading the file", 5000);
@@ -79,9 +81,7 @@ function Upload() {
     }
   };
   return (
-    
     <div className="p-5 px-8 md:px-28 ">
-
       <div className="flex justify-center items-center">
         <h1
           className="bg-gradient-to-r from-green-300 via-blue-500 to-purple-600
@@ -95,17 +95,12 @@ function Upload() {
           uploadBtnHandler={(file: any) => uploadFile(file)}
           progress={progress}
         />
-
       </div>
       {loading && (
-          <div className="flex justify-center mt-4">
-            <ClipLoader
-              color="#4F46E5"
-              loading={loading}
-              size={45}
-            />
-          </div>
-        )}
+        <div className="flex justify-center mt-4">
+          <ClipLoader color="#4F46E5" loading={loading} size={45} />
+        </div>
+      )}
     </div>
   );
 }
