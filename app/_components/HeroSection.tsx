@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 function HeroSection() {
@@ -19,12 +20,12 @@ function HeroSection() {
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <a
+              <Link
                 className="block w-full rounded border border-indigo-600 bg-indigo-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-indigo-600 focus:outline-none focus:ring active:text-indigo-500 sm:w-auto"
                 href="/upload"
               >
                 Get Started
-              </a>
+              </Link>
 
               {/* <a
                 className="block w-full rounded border border-blue-600 px-12 py-3 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none focus:ring active:bg-blue-500 sm:w-auto"

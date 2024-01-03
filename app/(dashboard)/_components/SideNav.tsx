@@ -2,10 +2,13 @@
 
 import { File, Shield, Upload } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 
 function SideNav() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState();
+  // console.log(activeTab);
   const menuList = [
     {
       id: 1,
@@ -34,7 +37,9 @@ function SideNav() {
       </div>
 
       <div className="flex mt-5 flex-col float-left space-y-1 w-full">
-        {menuList.map((item: any, index: any) => (
+        {/* {menuList
+        
+        .map((item: any, index: any) => (
           <button
             className={`flex gap-2 p-4 px-5 hover:bg-indigo-600
             
@@ -48,6 +53,24 @@ function SideNav() {
             <item.icon />
             <h2>{item.name}</h2>
           </button>
+        ))} */}
+        {menuList.map((item: any, index: any) => (
+          <Link href={item.path} key={item.id}>
+            <div
+              className={`flex gap-2 p-4 px-5 hover:bg-indigo-600
+              transition duration-300 ease-in-out
+              hover:text-black w-56 text-white ${
+                activeTab === index ? "bg-indigo-600" : ""
+              }`}
+              onClick={() => {
+                setActiveTab(index);
+                // router.push(`${item.path}`);
+              }}
+            >
+              <item.icon />
+              <h2>{item.name}</h2>
+            </div>
+          </Link>
         ))}
       </div>
     </div>
