@@ -13,7 +13,6 @@ function Files() {
   const getData = () => {
     try {
       const { user } = useUser();
-      // console.log("User =>", user?.primaryEmailAddress?.emailAddress);
       return user?.primaryEmailAddress?.emailAddress;
     } catch (error) {}
   };

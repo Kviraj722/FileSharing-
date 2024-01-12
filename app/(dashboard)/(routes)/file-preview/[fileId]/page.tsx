@@ -10,7 +10,6 @@ import { ArrowLeft, ArrowLeftSquare } from "lucide-react";
 
 function FilePreview({ params }: any) {
   useEffect(() => {
-    console.log("params.fileId =>", params.fileId);
     getFileInfo();
   }, []);
   const [fileData, setFileData] = useState<any>();

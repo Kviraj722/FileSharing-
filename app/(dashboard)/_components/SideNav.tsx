@@ -9,7 +9,6 @@ import React, { useEffect, useState } from "react";
 
 function SideNav() {
   const [activeTab, setActiveTab] = useState<any>();
-  // console.log(activeTab);
 const pathname = usePathname()
   const menuList = [
     {

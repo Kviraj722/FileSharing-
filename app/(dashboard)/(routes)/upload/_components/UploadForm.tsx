@@ -21,9 +21,7 @@ function UploadForm({ uploadBtnHandler, progress }: any) {
   const [uploading, setUploading] = useState<boolean>(false);
 
   const onFileSelect = (file: any) => {
-    console.log("File =>", file);
     if (file && file.size > 2000000) {
-      console.log("Size is greater then 2 mb");
       setErrorMsg("Maximum file upload size is 2MB");
       return;
     }

@@ -1,5 +1,4 @@
-import { error } from "console";
-import nodemailer, { createTransport, TransportOptions } from "nodemailer";
+import { createTransport, TransportOptions } from "nodemailer";
 
 interface SMTP {
   host: string;
@@ -17,14 +16,14 @@ interface MailConfig {
 
 const email: MailConfig = {
   smtp: {
-    host: "smtp.gmail.com",
-    port: "587", // Default to port 587 if not defined
+    host: process.env.NEXT_EMAIL_HOST || "",
+    port: process.env.NEXT_EMAIL_PORT || "587",
     auth: {
-      user: "kawa.135viraj@gmail.com",
-      pass: "kswtewushsjnkqhp",
+      user: process.env.NEXT_EMAIL_USER || "",
+      pass: process.env.NEXT_EMAIL_PASS || "",
     },
   },
-  from: "kawa.135viraj@gmail.com",
+  from: process.env.NEXT_EMAIL_FROM || "",
 };
 
 const transport = createTransport(email.smtp as TransportOptions);
@@ -32,7 +31,10 @@ const sendEmail = async (to: string, subject: string, html: string) => {
   try {
     const msg = { from: email.from, to: to, subject, html };
     const res = await transport.sendMail(msg);
-    console.log(res);
+    console.log(
+      "res===========================================================================>>>>>>>>>>>>>>>>>>>>>",
+      res
+    );
   } catch (e) {
     throw e;
   }

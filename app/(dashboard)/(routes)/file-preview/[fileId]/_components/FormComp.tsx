@@ -49,7 +49,6 @@ function FormComp({ fileData, id }: any) {
     }
   };
   const handleSubmit = async (formData: any) => {
-    console.log("Sending formData =>", formData, fileData);
     setLoadingBtn(true);
     await sendEmailFnc(formData, fileData)
       .then(() => {

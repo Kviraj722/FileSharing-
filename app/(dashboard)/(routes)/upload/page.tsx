@@ -50,14 +50,11 @@ function Upload() {
       uploadTask.on("state_changed", async (snapshort: any) => {
         const progress =
           (snapshort.bytesTransferred / snapshort.totalBytes) * 100;
-        console.log(progress);
       });
 
       const fileSnapShot = await uploadTask;
 
       const fileUrl = await getDownloadURL(fileSnapShot.ref);
-      console.log(fileUrl);
-      // const newDocRef = collection(db, "Files");
       const newDocRef = doc(db, "Files", id);
       const dataToUpload = {
         id: id,
@@ -74,7 +71,6 @@ function Upload() {
       ToasterSuccess("File uploaded successfully", 5000);
       router.push("/file-preview/" + id);
     } catch (err) {
-      console.log("Error while uploading  =>>>>>>>>>>>>>>>>>>>>", err);
       ToasterComponent("Error while uploading the file", 5000);
     } finally {
       setLoading(false);

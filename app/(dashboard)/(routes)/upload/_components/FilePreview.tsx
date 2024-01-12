@@ -8,7 +8,6 @@ function FilePreview({ file, removeFile }: any) {
   return (
     <div className="flex items-center gap-2 justify-between boarder rounded-md  boarder-indigo-400">
       <div className="flex items-center">
-        {/* {console.log(file)} */}
         <div className="pl-1">
           <Image
             src={fileUrl}
