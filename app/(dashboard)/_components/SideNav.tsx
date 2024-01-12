@@ -3,12 +3,14 @@
 import { File, Shield, Upload } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 function SideNav() {
-  const [activeTab, setActiveTab] = useState();
+  const [activeTab, setActiveTab] = useState<any>();
   // console.log(activeTab);
+const pathname = usePathname()
   const menuList = [
     {
       id: 1,
@@ -29,10 +31,20 @@ function SideNav() {
       path: "/upgrade",
     },
   ];
-
+  useEffect(()=>{
+    menuList.forEach((item,index)=>{
+      if(item.path === pathname){
+        setActiveTab(index)
+      }
+    })
+  },[pathname])
+  const route = useRouter()
+  const handleClick = () => {
+    route.push("/")
+  }
   return (
     <div>
-      <div className="p-5 flex justify-center">
+      <div className="p-5 flex justify-center hover:cursor-pointer" onClick={handleClick}>
         <Image src="/logo.svg" width={65} height={65} alt="Logo" />
       </div>
 

@@ -21,11 +21,6 @@ function ImagePriview({ fileData }: any) {
         </div>
         <div className="text-center mt-1.5 text-sm text-gray-700">{fileData.fileSize}.KB</div>
 
-        <form className="mt-4">
-          <button className="block w-full rounded bg-indigo-600 p-4 font-medium transition hover:scale-105">
-            Share button
-          </button>
-        </form>
       </div>
     </div>
   );

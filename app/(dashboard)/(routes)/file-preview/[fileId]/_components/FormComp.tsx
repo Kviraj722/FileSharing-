@@ -1,15 +1,20 @@
+"use client";
 import React, { useState } from "react";
 import ToasterComponent from "@/app/_components/ToasterComponent";
 import ToasterSuccess from "@/app/_components/ToasterSuccess";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
-import { update } from "firebase/database";
 import { ClipLoader } from "react-spinners";
+import { sendEmailFnc } from "@/utils/sendEmail";
+import { useRouter } from "next/navigation";
 
 function FormComp({ fileData, id }: any) {
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingBtn, setLoadingBtn] = useState<boolean>(false);
+
   const [isPasswordEnabled, setIsPasswordEnabled] = useState(false);
   const [password, setPassword] = useState("");
+  const route = useRouter();
   const copyToClipBoard = () => {
     navigator.clipboard.writeText(fileData.shortUrl);
     ToasterSuccess("Short URL copied to clipboard!", 2000);
@@ -43,11 +48,23 @@ function FormComp({ fileData, id }: any) {
       setPassword("");
     }
   };
-
-  const handleEmailShare = () => {
-    ToasterComponent("Share button clicked!", 2000);
+  const handleSubmit = async (formData: any) => {
+    console.log("Sending formData =>", formData, fileData);
+    setLoadingBtn(true);
+    await sendEmailFnc(formData, fileData)
+      .then(() => {
+        setLoading(false);
+        ToasterSuccess("Mail sent to your buddy", 3000);
+        route.push("/files");
+      })
+      .catch((e) => {
+        ToasterComponent(
+          "Due to some reason, we are not able to send email. Sorry:(",
+          5000
+        );
+        console.log("Error =>", e);
+      });
   };
-
   return (
     <div>
       <h1 className="pb-2 text-white">Short URL</h1>
@@ -82,7 +99,6 @@ function FormComp({ fileData, id }: any) {
         />
         <h2 className="text-white">Enable password</h2>
       </div>
-
       {isPasswordEnabled && (
         <div className="flex  justify-evenly items-center mt-4">
           <input
@@ -106,19 +122,29 @@ function FormComp({ fileData, id }: any) {
           )}
         </div>
       )}
+
       <h2 className="text-white mt-4">Share with your friend via email!</h2>
-      <div className="mt-2">
-        <input
-          type="email"
-          className="p-2 rounded w-full bg-gray-500 text-white"
-        />
-      </div>
-      <button
-        className="block w-full rounded bg-indigo-600 p-4 font-medium transition hover:scale-105 mt-4 text-white"
-        onClick={handleEmailShare}
-      >
-        Share button
-      </button>
+      <form action={handleSubmit}>
+        <div className="mt-2">
+          <input
+            type="email"
+            className="p-2 rounded w-full bg-gray-500 text-white"
+            name="email"
+          />
+        </div>
+        {loadingBtn ? (
+          <div className="flex justify-center mt-5">
+            <ClipLoader color="#4F46E5" loading={loadingBtn} size={40} />
+          </div>
+        ) : (
+          <button
+            className="block w-full rounded bg-indigo-600 p-4 font-medium transition hover:scale-105 mt-4 text-white"
+            type="submit"
+          >
+            Share button
+          </button>
+        )}
+      </form>
     </div>
   );
 }

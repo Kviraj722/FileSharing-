@@ -1,7 +1,15 @@
-import Link from "next/link";
-import React from "react";
+"use client"
+import React, { useState } from "react";
+import { ClipLoader } from "react-spinners";
 
 function HeroSection() {
+  const [loading, setLoading] = useState(false);
+  const handleGetStartedClick = () => {
+    setLoading(true);
+    setTimeout(() => {
+      window.location.href = "/upload";
+    }, 2000);
+  };
   return (
     <div>
       <section className="bg-black-900 text-white">
@@ -20,12 +28,26 @@ function HeroSection() {
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
+              {/* <Link
                 className="block w-full rounded border border-indigo-600 bg-indigo-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-indigo-600 focus:outline-none focus:ring active:text-indigo-500 sm:w-auto"
                 href="/upload"
               >
                 Get Started
-              </Link>
+              </Link> */}
+
+              {loading ? (
+                <div className="">
+                  <ClipLoader color="#4F46E5" loading={loading} size={40} />
+                </div>
+              ) : (
+                <button
+                  className="inline-flex items-center gap-2 rounded border border-indigo-600 bg-indigo-600 px-8 py-3 text-white hover:bg-transparent hover:text-indigo-600 focus:outline-none focus:ring active:text-indigo-500"
+                  onClick={handleGetStartedClick}
+                  disabled={loading}
+                >
+                  <span className="text-sm font-medium"> Get started </span>
+                </button>
+              )}
 
               {/* <a
                 className="block w-full rounded border border-blue-600 px-12 py-3 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none focus:ring active:bg-blue-500 sm:w-auto"
