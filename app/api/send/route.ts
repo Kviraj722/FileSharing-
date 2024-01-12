@@ -21,7 +21,7 @@ const email: MailConfig = {
     port: "587", // Default to port 587 if not defined
     auth: {
       user: "kawa.135viraj@gmail.com",
-      pass: "kvjtftuvhfjnkhhp",
+      pass: "kswtewushsjnkqhp",
     },
   },
   from: "kawa.135viraj@gmail.com",
