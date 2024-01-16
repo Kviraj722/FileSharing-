@@ -64,7 +64,7 @@ function Upload() {
         fileUrl: fileUrl,
         email: user?.primaryEmailAddress?.emailAddress,
         userName: user?.fullName,
-        password: "RandoMPassword",
+        password: "",
         shortUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/${id}`,
       };
       const dataAdded = await setDoc(newDocRef, dataToUpload);
