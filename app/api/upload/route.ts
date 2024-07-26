@@ -1,23 +1,5 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { Files } from "@/app/models/Files";
 import { connectToDB } from "./../../../utils/db";
-import mongoose from "mongoose";
-import { NextRequest, NextResponse } from "next/server";
-
-const FileSchema = new mongoose.Schema({
-  id: String,
-  fileName: String,
-  fileSize: Number,
-  fileType: String,
-  encryptedData: String, // Store encrypted data as base64 string
-  iv: [Number], // Store IV as an array of numbers
-  encryptionKey: [Number], // Store encryption key as an array of numbers
-  email: String,
-  userName: String,
-  password: String,
-  shortUrl: String,
-});
-
-export const File = mongoose.models.File || mongoose.model("File", FileSchema);
 
 export const POST = async (req: Request, res: Response) => {
   console.log("Hello from the server");
@@ -27,7 +9,7 @@ export const POST = async (req: Request, res: Response) => {
 
     console.log("FIle data => ", fileData);
 
-    await File.create(fileData);
+    await Files.create(fileData);
     return new Response(
       JSON.stringify({
         message: "File has been added.",
