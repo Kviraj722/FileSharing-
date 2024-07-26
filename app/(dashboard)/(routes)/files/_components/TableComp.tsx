@@ -11,37 +11,83 @@ interface FileData {
   fileType: string;
   fileSize: string;
   fileUrl: string;
+  decryptedUrl?: string;
 }
+const decryptData = async (
+  key: CryptoKey,
+  iv: Uint8Array,
+  data: ArrayBuffer
+): Promise<ArrayBuffer> => {
+  return crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+};
+
 function TableComp() {
   const { user } = useUser();
   const [fileData, setFileData] = useState<FileData[]>([]);
   const [loading, setLoading] = useState(false);
+  const fetchData = async (email: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/get-files", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(email),
+      });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const filesCollection = collection(db, "Files");
-        const q = query(
-          filesCollection,
-          where("email", "==", user?.primaryEmailAddress?.emailAddress)
+      if (response.ok) {
+        const filesData = await response.json();
+        // Decrypt the files
+        const decryptedFiles = await Promise.all(
+          filesData.map(async (file: any) => {
+            const encryptedData = new Uint8Array(
+              atob(file.encryptedData)
+                .split("")
+                .map((char) => char.charCodeAt(0))
+            );
+            const iv = new Uint8Array(file.iv);
+            const rawKey = new Uint8Array(file.encryptionKey);
+
+            // Import the raw key to CryptoKey
+            const encryptionKey = await crypto.subtle.importKey(
+              "raw",
+              rawKey,
+              { name: "AES-GCM" },
+              false,
+              ["decrypt"]
+            );
+
+            const decryptedData = await decryptData(
+              encryptionKey,
+              iv,
+              encryptedData.buffer
+            );
+            const decryptedBlob = new Blob([decryptedData], {
+              type: file.fileType,
+            });
+            const decryptedUrl = URL.createObjectURL(decryptedBlob);
+
+            return {
+              ...file,
+              decryptedUrl,
+            };
+          })
         );
-        const querySnapshot = await getDocs(q);
 
-        const files: FileData[] = [];
-        querySnapshot.forEach((doc) => {
-          files.push(doc.data() as FileData);
-        });
-
-        setFileData(files);
-      } catch (error) {
-        console.error("Error fetching file data:", error);
-      } finally {
-        setLoading(false);
+        setFileData(decryptedFiles);
+      } else {
+        console.error("Error fetching file data:", await response.text());
       }
-    };
-
-    fetchData();
+    } catch (error) {
+      console.error("Error fetching file data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    const email: any = user?.primaryEmailAddress?.emailAddress;
+    fetchData(email);
   }, [user?.primaryEmailAddress?.emailAddress]);
 
   return (
@@ -82,16 +128,18 @@ function TableComp() {
                   <td className="whitespace-nowrap px-4 py-2 text-white">
                     {file?.fileSize}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-2">
+                  {file.decryptedUrl ? (
                     <Link
-                      href={file?.fileUrl}
+                      href={file.decryptedUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block rounded bg-black-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-600  transition-transform"
+                      className="inline-block rounded bg-black-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-600 transition-transform"
                     >
-                      View
+                      Download
                     </Link>
-                  </td>
+                  ) : (
+                    "N/A"
+                  )}
                 </tr>
               ))}
             </tbody>

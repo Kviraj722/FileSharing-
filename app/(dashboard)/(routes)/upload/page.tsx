@@ -1,25 +1,32 @@
 "use client";
 import React, { useState } from "react";
 import UploadForm from "./_components/UploadForm";
-import { app, db } from "@/firebaseConfig";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
 import ToasterSuccess from "@/app/_components/ToasterSuccess";
 import ToasterComponent from "@/app/_components/ToasterComponent";
-import {
-  addDoc,
-  collection,
-  doc,
-  getFirestore,
-  setDoc,
-} from "firebase/firestore";
+
 import { useUser } from "@clerk/nextjs";
 import { ClipLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
+
+// Function to generate a random encryption key
+const generateEncryptionKey = async (): Promise<CryptoKey> => {
+  return crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, [
+    "encrypt",
+    "decrypt",
+  ]);
+};
+const encryptData = async (
+  key: CryptoKey,
+  data: ArrayBuffer
+): Promise<{ iv: Uint8Array; encryptedData: ArrayBuffer }> => {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encryptedData = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    data
+  );
+  return { iv, encryptedData };
+};
 
 function Upload() {
   function generateUniqueRandomString(length: number): string {
@@ -37,40 +44,64 @@ function Upload() {
 
   const { user } = useUser();
   const [progress, setProgress] = useState<any>();
-  const storage = getStorage(app);
+
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const id = generateUniqueRandomString(6);
   const uploadFile = async (file: any) => {
     try {
       setLoading(true);
-      const imageRef = ref(storage, "files/" + file?.name);
+      // Generate encryption key
+      const encryptionKey = await generateEncryptionKey();
+      console.log("ENCRYPTION KEY ", encryptionKey);
+      // Encrypt file data
+      const fileBuffer = await file.arrayBuffer();
+      const { iv, encryptedData } = await encryptData(
+        encryptionKey,
+        fileBuffer
+      );
+      console.log(" iv, encryptedData ", iv, encryptedData);
+      // Convert encrypted data to base64
+      const encryptedBase64 = btoa(
+        String.fromCharCode(...new Uint8Array(encryptedData))
+      );
 
-      const uploadTask = uploadBytesResumable(imageRef, file, file.type);
-      uploadTask.on("state_changed", async (snapshort: any) => {
-        const progress =
-          (snapshort.bytesTransferred / snapshort.totalBytes) * 100;
-      });
+      // Export encryption key to raw format
+      const rawEncryptionKey = await crypto.subtle.exportKey(
+        "raw",
+        encryptionKey
+      );
 
-      const fileSnapShot = await uploadTask;
-
-      const fileUrl = await getDownloadURL(fileSnapShot.ref);
-      const newDocRef = doc(db, "Files", id);
       const dataToUpload = {
         id: id,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
-        fileUrl: fileUrl,
+        encryptedData: encryptedBase64,
+        iv: Array.from(iv),
+        encryptionKey: Array.from(new Uint8Array(rawEncryptionKey)),
         email: user?.primaryEmailAddress?.emailAddress,
         userName: user?.fullName,
         password: "",
         shortUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/${id}`,
       };
-      const dataAdded = await setDoc(newDocRef, dataToUpload);
-      ToasterSuccess("File uploaded successfully", 5000);
-      router.push("/file-preview/" + id);
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToUpload),
+      });
+
+      if (response.ok) {
+        ToasterSuccess("File uploaded and data stored successfully", 5000);
+        router.push("/files");
+      } else {
+        const errorData = await response.json();
+        ToasterComponent("Error while uploading the file", 5000);
+      }
     } catch (err) {
+      console.log("Error -> ", err);
       ToasterComponent("Error while uploading the file", 5000);
     } finally {
       setLoading(false);
